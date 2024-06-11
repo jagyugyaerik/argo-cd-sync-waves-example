@@ -1,0 +1,40 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kube-prometheus-stack
+  namespace: argocd
+  labels:
+    name: kube-prometheus-stack
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+spec:
+  project: default
+  source:
+    repoURL: "https://prometheus-community.github.io/helm-charts"
+    targetRevision: "54.2.2"
+    chart: "kube-prometheus-stack"
+    helm:
+      releaseName: "kube-prometheus-stack"
+      skipCrds: true
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kube-prometheus-stack
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: false
+    syncOptions:
+    - Validate=ture
+    - CreateNamespace=true
+    - PrunePropagationPolicy=foreground
+    - PruneLast=true
+    - RespectIgnoreDifferences=true
+    - ApplyOutOfSyncOnly=true
+    retry:
+      limit:
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 2m
+  revisionHistoryLimit: 10

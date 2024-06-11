@@ -1,0 +1,46 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: nginx
+  namespace: argocd
+  labels:
+    name: nginx
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+spec:
+  project: default
+  source:
+    repoURL: "https://charts.bitnami.com/bitnami"
+    targetRevision: "18.0.3"
+    chart: "nginx"
+    helm:
+      releaseName: "nginx"
+      valuesObject:
+        service:
+          type: ClusterIP
+        metrics:
+          enabled: true
+          serviceMonitor:
+            enabled: true
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: nginx
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: false
+    syncOptions:
+    - Validate=ture
+    - CreateNamespace=true
+    - PrunePropagationPolicy=foreground
+    - PruneLast=true
+    - RespectIgnoreDifferences=true
+    - ApplyOutOfSyncOnly=true
+    retry:
+      limit:
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 4m
+  revisionHistoryLimit: 10
