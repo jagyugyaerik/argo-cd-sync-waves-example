@@ -16,6 +16,10 @@ spec:
     helm:
       releaseName: "kube-prometheus-stack"
       skipCrds: true
+      values: |
+        alertmanager:
+          alertmanagerSpec:
+            replicas: 2
   destination:
     server: https://kubernetes.default.svc
     namespace: kube-prometheus-stack
